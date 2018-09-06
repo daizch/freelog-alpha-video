@@ -67,11 +67,30 @@ var onloadVideos = createLoader(function (callback) {
 });
 
 function loadPresentableInfo(presentableId) {
-  return window.QI.fetch(`/v1/presentables/${presentableId}`).then(res => res.json())
+  return window.QI.fetch(`/v1/auths/presentable/${presentableId}.info?nodeId=${nodeId}`).then(res => {
+    var token = res.headers.get('freelog-sub-resource-auth-token') || null;
+    var rids = res.headers.get('freelog-sub-resourceids') || ''
+    rids = rids.split(',')
+    return res.json().then(data => {
+      data.token = token
+      data.subResources = rids
+      return data
+    })
+  })
 }
 
+function loadPresentableAuths(pids) {
+  return window.QI.fetch(`/v1/presentables/auth?nodeId=${nodeId}`, {
+    data: {
+      pids: pids.join(',')
+    }
+  }).then(res => {
+    return res.json()
+  })
+}
+
+
 function requestPresentableData(presentableId) {
-  var nodeId = window.__auth_info__.__auth_node_id__
   return window.QI.fetch(`/v1/auths/presentable/${presentableId}?nodeId=${nodeId}`)
     .then(res => {
       var meta = decodeURIComponent(res.headers.get('freelog-meta'))
@@ -155,5 +174,7 @@ export {
   loadBlogConfig,
   loadResourcesByTags,
   onloadPresentableData,
-  onloadResourceContent
+  onloadResourceContent,
+  loadPresentableInfo,
+  loadPresentableAuths
 }

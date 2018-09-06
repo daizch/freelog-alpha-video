@@ -1,6 +1,6 @@
 <template>
   <div class="video-player-wrapper" v-show="video.sources&&video.sources.length">
-    <video id="video-player" class="video-js" data-setup="{}">
+    <video id="video-player" class="video-js" ref="player" data-setup="{}">
       <!--<source src="/resources/mock/videos/video_720x480_1mb.mp4" type='video/mp4'>-->
       <slot name="support">
         <p class="vjs-no-js">
@@ -83,6 +83,15 @@
       }
     },
     mounted() {
+      this.$refs.player.addEventListener("loadedmetadata", function () {
+        console.log("test");
+      });
+
+      this.$refs.player.addEventListener("error", function () {
+        console.log("error", arguments)
+      });
+
+      console.log(this.video.sources)
       var config = Object.assign({
         playbackRates: this.rates,
         sources: this.video.sources

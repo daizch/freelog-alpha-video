@@ -3,7 +3,8 @@ import router from './router'
 import './index.less'
 import App from './pages/app'
 
-var template = document.currentScript.parentNode.querySelector('template');
+var html = require('./index.html')
+
 class FreelogAlphaVideo extends HTMLElement {
   constructor() {
     super()
@@ -11,7 +12,7 @@ class FreelogAlphaVideo extends HTMLElement {
 
   initApp() {
     var app = new Vue({
-      el: '#video-app',
+      el: this.querySelector('.alpha-video-app'),
       router,
       template: '<App/>',
       components: {App}
@@ -19,11 +20,10 @@ class FreelogAlphaVideo extends HTMLElement {
   }
 
   connectedCallback() {
-    this.innerHTML = template.innerHTML
+    this.innerHTML = html
     this.initApp()
   }
-
 }
 
-
 customElements.define('freelog-alpha-video', FreelogAlphaVideo);
+// export default FreelogAlphaVideo;

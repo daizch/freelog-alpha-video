@@ -14,11 +14,11 @@
         <div class="qp-videos-scroll-container">
           <div class="qp-videos-wrap" ref="videosWrap">
             <ul class="qp-video-list" :style="translateListStyle">
-              <li class="qp-video-item" :class="{current: currentVideoIndex===index}"
+              <li class="qp-video-item" :class="{current: currentVideoIndex===index, 'locked': !video.token}"
                   v-for="(video, index) in videos"
                   @click="switchVideoHandler(video, index)">
                 <div class="video-poster-holder">
-                  <img :src="video.poster" alt="">
+                  <img :src="video.posterUrl" alt="">
                   <span class="video-duration-info">{{formatDuration(video.duration)}}</span>
                 </div>
                 <div class="qp-video-title">{{video.title}}</div>
@@ -41,7 +41,12 @@
   import Player from '../../components/player'
   import VideoJs from 'video.js'
 
-  import {onloadVideos, resolveResourcePath, getResourceToken} from '../../data'
+  import {
+    onloadVideos,
+    resolveResourcePath,
+    loadPresentableAuths,
+    loadPresentableInfo
+  } from '../../data'
 
   require('video.js/dist/video-js.css')
   require('videojs-playbackrate-adjuster');
@@ -69,7 +74,7 @@
       this.loadVideos()
         .then(videos => {
           if (videos && videos.length) {
-            this.videos = videos;
+            this.videos = videos.reverse();
             this.video = this.videos[0]
           }
         })
@@ -99,27 +104,28 @@
           onloadVideos(data => {
             console.log(data)
             if (data && Array.isArray(data)) {
-              var promises = []
-              data.forEach(item => {
-                Object.assign(item, item.resourceInfo.meta.profile);
-                item.sources = [{
-                  src: resolveResourcePath(item.presentableId),
-                  type: 'video/mp4'
-                }];
-                if (item.poster) {
-                  var p = getResourceToken(item.presentableId).then(token => {
-                    item.poster = resolveResourcePath(item.poster, token)
-                  });
-                  promises.push(p)
-                }
-              });
-              if (promises.length) {
-                Promise.all(promises).then(() => {
-                  resolve(data)
-                })
-              } else {
+              loadPresentableAuths(data.map(v => v.presentableId)).then(res => {
+                var presentablesMap = res.data
+                data.forEach(item => {
+                  var presentable = presentablesMap[item.presentableId]
+                  var token = presentable['freelog-sub-resource-auth-token']
+
+                  Object.assign(item, item.resourceInfo.meta.profile);
+                  item.authInfo = presentable
+                  item.sources = [{
+                    src: resolveResourcePath(item.presentableId),
+                    type: 'video/mp4'
+                  }];
+                  if (item.poster && token) {
+                    item.token = token
+                    item.posterUrl = resolveResourcePath(item.poster, token)
+                  } else {
+                    item.posterUrl = ''
+                  }
+                });
+
                 resolve(data)
-              }
+              })
             } else {
               reject(data)
             }
@@ -184,7 +190,8 @@
         }
       },
       padNum(num) {
-        return num && num.toString().padStart(2, '0') || '';
+        num = num || ''
+        return num.toString().padStart(2, '0') || '';
       },
       formatDuration(duration) {
         var interval = 60;
@@ -192,15 +199,23 @@
         var m = parseInt(duration / interval);
         var h = parseInt(m / interval);
         var str = this.padNum(s);
-        if (m) {
-          str = this.padNum(m % 60) + ':' + str;
-        }
+        str = this.padNum(m % 60) + ':' + str;
+
         if (h) {
           str = this.padNum(h) + ':' + str;
         }
+
         return str
       },
       switchVideoHandler(video, index) {
+        if (!video.token) {
+          window.FreeLogApp.handleErrorResponse({
+            errcode: video.authInfo.errcode,
+            data: video.authInfo
+          })
+          return
+        }
+
         this.currentVideoIndex = index
         this.video = video
         this.videoPoster = video.poster
