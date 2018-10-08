@@ -101,7 +101,7 @@
     },
     methods: {
       queryPV(key) {
-        window.QI.fetch(`/v1/customStores/${key}`).then(res => {
+        window.FreelogApp.QI.fetch(`/v1/customStores/${key}`).then(res => {
           return res.json()
         }).then(data => {
           var result = data.data
@@ -114,7 +114,7 @@
         })
       },
       updatePV(key, pv) {
-        return window.QI.fetch(`/v1/customStores/createOrUpdate`, {
+        return window.FreelogApp.QI.fetch(`/v1/customStores/createOrUpdate`, {
           method: 'POST',
           data: {
             key: key,

@@ -209,10 +209,7 @@
       },
       switchVideoHandler(video, index) {
         if (!video.token) {
-          window.FreeLogApp.handleErrorResponse({
-            errcode: video.authInfo.errcode,
-            data: video.authInfo
-          })
+          window.FreelogApp.trigger('HANDLE_INVALID_RESPONSE',{response: video.authInfo})
           return
         }
 

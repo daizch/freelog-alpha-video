@@ -25,7 +25,7 @@ function createLoader(loader) {
 const nodeId = window.__auth_info__.__auth_node_id__
 
 function loadResourcesByTags(tags) {
-  return window.QI.fetch(`/v1/presentables?nodeId=${nodeId}&tags=${tags}`).then(res => res.json())
+  return window.FreelogApp.QI.fetch(`/v1/presentables?nodeId=${nodeId}&tags=${tags}`).then(res => res.json())
     .then(res => {
       if (res.errcode === 0) {
         return res.data
@@ -48,14 +48,14 @@ function loadBlogConfig() {
           return null
         }
       } else {
-        window.FreeLogApp.handleErrorResponse(data)
+        window.FreelogApp.trigger('HANDLE_INVALID_RESPONSE',{response: data})
       }
     })
 }
 
 
 var onloadVideos = createLoader(function (callback) {
-  window.QI.fetch(`/v1/presentables?nodeId=${nodeId}&resourceType=video`)
+  window.FreelogApp.QI.fetch(`/v1/presentables?nodeId=${nodeId}&resourceType=video`)
     .then(res => res.json())
     .then(res => {
       if (res.errcode === 0) {
@@ -67,7 +67,7 @@ var onloadVideos = createLoader(function (callback) {
 });
 
 function loadPresentableInfo(presentableId) {
-  return window.QI.fetch(`/v1/auths/presentable/${presentableId}.info?nodeId=${nodeId}`).then(res => {
+  return window.FreelogApp.QI.fetch(`/v1/auths/presentable/${presentableId}.info?nodeId=${nodeId}`).then(res => {
     var token = res.headers.get('freelog-sub-resource-auth-token') || null;
     var rids = res.headers.get('freelog-sub-resourceids') || ''
     rids = rids.split(',')
@@ -80,7 +80,7 @@ function loadPresentableInfo(presentableId) {
 }
 
 function loadPresentableAuths(pids) {
-  return window.QI.fetch(`/v1/presentables/auth?nodeId=${nodeId}`, {
+  return window.FreelogApp.QI.fetch(`/qi/v1/presentables/auth.json?nodeId=${nodeId}`, {
     data: {
       pids: pids.join(',')
     }
@@ -91,7 +91,7 @@ function loadPresentableAuths(pids) {
 
 
 function requestPresentableData(presentableId) {
-  return window.QI.fetch(`/v1/auths/presentable/${presentableId}?nodeId=${nodeId}`)
+  return window.FreelogApp.QI.fetch(`/v1/auths/presentable/${presentableId}?nodeId=${nodeId}`)
     .then(res => {
       var meta = decodeURIComponent(res.headers.get('freelog-meta'))
       var token = decodeURIComponent(res.headers.get('freelog-sub-resource-auth-token'))
@@ -125,7 +125,7 @@ function requestPresentableData(presentableId) {
 }
 
 function getResourceToken(pid) {
-  return window.QI.fetch(`/v1/auths/presentable/${pid}?nodeId=${nodeId}`)
+  return window.FreelogApp.QI.fetch(`/v1/auths/presentable/${pid}?nodeId=${nodeId}`)
     .then(res => {
       var token = decodeURIComponent(res.headers.get('freelog-sub-resource-auth-token'))
       // var resourceIds = decodeURIComponent(res.headers.get('freelog-sub-resourceids'))
