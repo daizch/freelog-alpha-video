@@ -83,15 +83,10 @@
       }
     },
     mounted() {
-      this.$refs.player.addEventListener("loadedmetadata", function () {
-        console.log("test");
-      });
-
       this.$refs.player.addEventListener("error", function () {
         console.log("error", arguments)
       });
 
-      console.log(this.video.sources)
       var config = Object.assign({
         playbackRates: this.rates,
         sources: this.video.sources

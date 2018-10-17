@@ -20,7 +20,6 @@ npm run build
 
 ### resource数据
 
-
 #### meta定义
 
 - title: 视频标题

@@ -102,7 +102,6 @@
       loadVideos() {
         return new Promise((resolve, reject) => {
           onloadVideos(data => {
-            console.log(data)
             if (data && Array.isArray(data)) {
               loadPresentableAuths(data.map(v => v.presentableId)).then(res => {
                 var presentablesMap = res.data
