@@ -129,16 +129,15 @@ function getResourceToken(pid) {
     .then(res => {
       var token = decodeURIComponent(res.headers.get('freelog-sub-resource-auth-token'))
       // var resourceIds = decodeURIComponent(res.headers.get('freelog-sub-resourceids'))
-
       return token
     });
 }
 
 function resolveResourcePath(id, token) {
   if (token) {
-    return `/api/v1/auths/presentable/subResource/${id}?token=${token}`
+    return window.location.origin.replace(/\/\/[^.]+/,'//qi') + `/v1/auths/presentable/subResource/${id}?token=${token}`
   }
-  return `/api/v1/auths/presentable/${id}?nodeId=${nodeId}`
+  return window.location.origin.replace(/\/\/[^.]+/,'//qi') + `/v1/auths/presentable/${id}?nodeId=${nodeId}`
 }
 
 
