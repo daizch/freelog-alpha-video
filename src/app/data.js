@@ -80,7 +80,7 @@ function loadPresentableInfo(presentableId) {
 }
 
 function loadPresentableAuths(pids) {
-  return window.FreelogApp.QI.fetch(`/qi/v1/presentables/auth.json?nodeId=${nodeId}`, {
+  return window.FreelogApp.QI.fetch(`/v1/presentables/auth.json?nodeId=${nodeId}`, {
     data: {
       pids: pids.join(',')
     }
